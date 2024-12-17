@@ -1,8 +1,17 @@
 import type { Trip } from '../types/trip'
+import { mockTrip } from '../data/mockTrip'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.globaleur.com'
+// Use mock data for development
+const isDevelopment = true
 
 export const fetchTrip = async (tripId: string): Promise<Trip> => {
+  if (isDevelopment) {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500))
+    return mockTrip
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/api/trips/${tripId}`)
     if (!response.ok) {
