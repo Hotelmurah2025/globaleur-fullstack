@@ -17,8 +17,8 @@ const mapContainerStyle = {
 }
 
 const createMarkerLabel = (index: number) => ({
-  text: `${index + 1}`,
-  className: 'bg-primary rounded-full w-6 h-6 flex items-center justify-center text-white'
+  text: `${index}`,
+  className: 'bg-white text-gray-900 text-sm font-medium rounded-full w-6 h-6 flex items-center justify-center shadow-sm font-inter'
 })
 
 export const TripMap = ({ locations }: TripMapProps) => {
@@ -79,7 +79,7 @@ export const TripMap = ({ locations }: TripMapProps) => {
         {directions && <DirectionsRenderer directions={directions} />}
       </GoogleMap>
       <button
-        className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-lg shadow-md"
+        className="absolute bottom-4 right-4 bg-white hover:bg-gray-50 px-4 py-2 rounded-lg shadow-md text-sm font-medium text-gray-700 border border-gray-200 font-inter transition-colors"
         onClick={fetchDirections}
       >
         View route
