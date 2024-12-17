@@ -1,130 +1,80 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Share2, BookmarkPlus, MapPin, List } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Share2, BookmarkPlus, MapPin, List } from 'lucide-react'
+import { fetchTrip } from '../services/trip'
+import type { Trip, TripDay, Location } from '../types/trip'
+import { TripMap } from '../components/trips/TripMap'
 
-interface Location {
-  id: string;
-  name: string;
-  rating: number;
-  description: string;
-  address: string;
-  hours: string;
-  image: string;
-}
-
-interface TripDay {
-  number: number;
-  locations: Location[];
-}
-
-interface TripData {
-  id: string;
-  city: string;
-  startDate: string;
-  endDate: string;
-  days: TripDay[];
-}
-
-const mockTripData: TripData = {
-  id: '4338178672065241586',
-  city: 'Jakarta',
-  startDate: '2024-12-18',
-  endDate: '2024-12-20',
-  days: [
-    {
-      number: 1,
-      locations: [
-        {
-          id: '1',
-          name: 'Taman Suropati',
-          rating: 4.6,
-          description: 'Historic park with sculptures',
-          address: 'Menteng, Central Jakarta',
-          hours: 'All day',
-          image: '/assets/locations/taman-suropati.jpg'
-        },
-        {
-          id: '2',
-          name: 'Taman Situ Lembang',
-          rating: 4.5,
-          description: 'Peaceful lake park',
-          address: 'Menteng, Central Jakarta',
-          hours: '6:00 AM - 6:00 PM',
-          image: '/assets/locations/taman-situ-lembang.jpg'
-        }
-      ]
-    },
-    {
-      number: 2,
-      locations: [
-        {
-          id: '3',
-          name: 'Menteng Park',
-          rating: 4.4,
-          description: 'Modern urban park',
-          address: 'Menteng, Central Jakarta',
-          hours: 'All day',
-          image: '/assets/locations/menteng-park.jpg'
-        },
-        {
-          id: '4',
-          name: 'Pacific Place Mall',
-          rating: 4.7,
-          description: 'Luxury shopping center',
-          address: 'SCBD, South Jakarta',
-          hours: '10:00 AM - 10:00 PM',
-          image: '/assets/locations/pacific-place.jpg'
-        }
-      ]
-    },
-    {
-      number: 3,
-      locations: [
-        {
-          id: '5',
-          name: 'National Monument',
-          rating: 4.8,
-          description: 'Historic landmark',
-          address: 'Central Jakarta',
-          hours: '8:00 AM - 4:00 PM',
-          image: '/assets/locations/monas.jpg'
-        },
-        {
-          id: '6',
-          name: 'Istiqlal Mosque',
-          rating: 4.7,
-          description: 'Largest mosque in Southeast Asia',
-          address: 'Central Jakarta',
-          hours: '4:00 AM - 8:00 PM',
-          image: '/assets/locations/istiqlal.jpg'
-        }
-      ]
-    }
-  ]
-};
-
-export const Trips: React.FC = () => {
-  const { tripId } = useParams<{ tripId: string }>();
-  const navigate = useNavigate();
-  const [activeDay, setActiveDay] = useState(1);
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('list');
+export const Trips = () => {
+  const { tripId } = useParams<{ tripId: string }>()
+  const navigate = useNavigate()
+  const [trip, setTrip] = useState<Trip | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [activeDay, setActiveDay] = useState(1)
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
 
   useEffect(() => {
     if (!tripId) {
-      navigate('/trips/4338178672065241586');
+      navigate('/trips/4338178672065241586')
+      return
     }
-  }, [tripId, navigate]);
+
+    const loadTrip = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await fetchTrip(tripId)
+        setTrip(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load trip')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadTrip()
+  }, [tripId, navigate])
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h2 className="text-red-800 font-semibold">Error loading trip</h2>
+          <p className="text-red-600">{error}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!trip) return null
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold">{mockTripData.city}</h1>
+          <h1 className="text-3xl font-bold">{trip.city}</h1>
           <p className="text-gray-600">
-            {new Date(mockTripData.startDate).toLocaleDateString()} - {new Date(mockTripData.endDate).toLocaleDateString()}
+            {trip.startDate.toLocaleDateString()} - {trip.endDate.toLocaleDateString()}
           </p>
         </div>
         <div className="flex gap-4">
@@ -162,7 +112,7 @@ export const Trips: React.FC = () => {
 
       <Tabs value={activeDay.toString()} onValueChange={(value) => setActiveDay(parseInt(value))} className="mb-8">
         <TabsList>
-          {mockTripData.days.map((day) => (
+          {trip.days.map((day) => (
             <TabsTrigger
               key={day.number}
               value={day.number.toString()}
@@ -172,40 +122,53 @@ export const Trips: React.FC = () => {
           ))}
         </TabsList>
 
-        {mockTripData.days.map((day) => (
+        {trip.days.map((day) => (
           <TabsContent key={day.number} value={day.number.toString()}>
-            <div className="grid gap-4">
-              {day.locations.map((location) => (
-                <Card key={location.id} className="p-4">
-                  <div className="flex gap-4">
-                    <div className="w-24 h-24 bg-gray-200 rounded-lg">
-                      {/* Image placeholder - will be implemented in later steps */}
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-6">
+                {day.locations.map((location, index) => (
+                  <Card key={location.id} className="overflow-hidden">
+                    <div className="aspect-video relative">
+                      <img
+                        src={location.image}
+                        alt={location.name}
+                        className="object-cover w-full h-full"
+                      />
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold">{location.name}</h3>
-                      <div className="flex items-center gap-1 text-yellow-500">
-                        <span>★</span>
-                        <span className="text-gray-700">{location.rating}</span>
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-lg font-semibold">{location.name}</h3>
+                        <div className="flex items-center gap-1">
+                          <span className="text-yellow-400">★</span>
+                          <span>{location.rating}</span>
+                        </div>
                       </div>
-                      <p className="text-gray-600 text-sm">{location.description}</p>
-                      <p className="text-gray-500 text-sm">{location.hours}</p>
-                      <p className="text-gray-500 text-sm">{location.address}</p>
+                      <p className="text-gray-600 text-sm mb-2">{location.description}</p>
+                      <div className="space-y-1 text-sm text-gray-500">
+                        <p>{location.hours}</p>
+                        <p>{location.address}</p>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              </div>
+              {viewMode === 'map' && (
+                <div className="sticky top-6">
+                  <TripMap
+                    locations={day.locations.map((loc, idx) => ({
+                      name: loc.name,
+                      coordinates: loc.coordinates,
+                      index: idx
+                    }))}
+                  />
+                </div>
+              )}
             </div>
           </TabsContent>
         ))}
       </Tabs>
-
-      {viewMode === 'map' && (
-        <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">
-          <p className="text-gray-500">Map integration will be implemented in later steps</p>
-        </div>
-      )}
     </div>
-  );
-};
+  )
+}
 
-export default Trips;
+export default Trips
