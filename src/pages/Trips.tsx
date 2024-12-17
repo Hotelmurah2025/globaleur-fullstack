@@ -3,10 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Share2, BookmarkPlus, MapPin, List } from 'lucide-react'
+import { MapPin, List } from 'lucide-react'
 import { fetchTrip } from '../services/trip'
-import type { Trip, TripDay, Location } from '../types/trip'
+import type { Trip } from '../types/trip'
 import { TripMap } from '../components/trips/TripMap'
+import { TripActions } from '../components/trips/TripActions'
 
 export const Trips = () => {
   const { tripId } = useParams<{ tripId: string }>()
@@ -77,16 +78,7 @@ export const Trips = () => {
             {trip.startDate.toLocaleDateString()} - {trip.endDate.toLocaleDateString()}
           </p>
         </div>
-        <div className="flex gap-4">
-          <Button variant="outline" size="sm">
-            <Share2 className="w-4 h-4 mr-2" />
-            Share
-          </Button>
-          <Button variant="outline" size="sm">
-            <BookmarkPlus className="w-4 h-4 mr-2" />
-            Save
-          </Button>
-        </div>
+        <TripActions city={trip.city} />
       </div>
 
       <div className="flex justify-end mb-4">
@@ -126,7 +118,7 @@ export const Trips = () => {
           <TabsContent key={day.number} value={day.number.toString()}>
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-6">
-                {day.locations.map((location, index) => (
+                {day.locations.map((location) => (
                   <Card key={location.id} className="overflow-hidden">
                     <div className="aspect-video relative">
                       <img
@@ -158,7 +150,7 @@ export const Trips = () => {
                     locations={day.locations.map((loc, idx) => ({
                       name: loc.name,
                       coordinates: loc.coordinates,
-                      index: idx
+                      index: idx + 1
                     }))}
                   />
                 </div>
