@@ -1,52 +1,82 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
-
-interface Location {
-  name: string
-  coordinates: [number, number]
-  index: number
-}
+import { GoogleMap, Marker, DirectionsRenderer, useJsApiLoader } from '@react-google-maps/api'
+import { useState, useCallback, useEffect } from 'react'
+import type { Location } from '../../types/trip'
 
 interface TripMapProps {
   locations: Location[]
 }
 
-// Create custom marker icon with number
-const createNumberedIcon = (number: number) => {
-  return L.divIcon({
-    className: 'custom-marker',
-    html: `
-      <div class="bg-primary rounded-full w-6 h-6 flex items-center justify-center text-white">
-        ${number}
-      </div>
-    `
-  })
+const mapContainerStyle = {
+  width: '100%',
+  height: '100%'
 }
 
+const createMarkerLabel = (index: number) => ({
+  text: `${index + 1}`,
+  className: 'bg-primary rounded-full w-6 h-6 flex items-center justify-center text-white'
+})
+
 export const TripMap = ({ locations }: TripMapProps) => {
+  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null)
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+  })
+
+  const fetchDirections = useCallback(async () => {
+    if (!locations.length) return
+
+    const directionsService = new google.maps.DirectionsService()
+    const waypoints = locations.slice(1, -1).map(location => ({
+      location: { lat: location.coordinates[0], lng: location.coordinates[1] },
+      stopover: true
+    }))
+
+    try {
+      const result = await directionsService.route({
+        origin: { lat: locations[0].coordinates[0], lng: locations[0].coordinates[1] },
+        destination: {
+          lat: locations[locations.length - 1].coordinates[0],
+          lng: locations[locations.length - 1].coordinates[1]
+        },
+        waypoints,
+        travelMode: google.maps.TravelMode.WALKING,
+        optimizeWaypoints: true
+      })
+      setDirections(result)
+    } catch (error) {
+      console.error('Error fetching directions:', error)
+    }
+  }, [locations])
+
+  useEffect(() => {
+    if (isLoaded) {
+      fetchDirections()
+    }
+  }, [isLoaded, fetchDirections])
+
+  if (!isLoaded) return <div>Loading...</div>
+
   return (
     <div className="relative aspect-square w-full">
-      <MapContainer
-        center={[-6.2104477, 106.8224768]} // Jakarta coordinates
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={{ lat: locations[0]?.coordinates[0] || -6.2104477, lng: locations[0]?.coordinates[1] || 106.8224768 }}
         zoom={13}
-        className="h-full w-full"
       >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        {locations.map((location, idx) => (
+        {locations.map((location, index) => (
           <Marker
-            key={idx}
-            position={location.coordinates}
-            icon={createNumberedIcon(location.index + 1)}
-          >
-            <Popup>{location.name}</Popup>
-          </Marker>
+            key={index}
+            position={{ lat: location.coordinates[0], lng: location.coordinates[1] }}
+            label={createMarkerLabel(index)}
+          />
         ))}
-      </MapContainer>
-      <button className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-lg shadow-md">
+        {directions && <DirectionsRenderer directions={directions} />}
+      </GoogleMap>
+      <button
+        className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-lg shadow-md"
+        onClick={fetchDirections}
+      >
         View route
       </button>
     </div>
