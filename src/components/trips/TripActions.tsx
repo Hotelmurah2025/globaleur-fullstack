@@ -36,13 +36,23 @@ export const TripActions: React.FC<TripActionsProps> = ({ city }) => {
   }
 
   return (
-    <div className="flex gap-4">
-      <Button variant="outline" size="sm" onClick={handleShare}>
-        <Share2 className="w-4 h-4 mr-2" />
+    <div className="flex gap-3">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleShare}
+        className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-inter"
+      >
+        <Share2 className="w-4 h-4 mr-2 text-gray-600" />
         Share
       </Button>
-      <Button variant="outline" size="sm" onClick={handleSave}>
-        <BookmarkPlus className="w-4 h-4 mr-2" />
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleSave}
+        className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-inter"
+      >
+        <BookmarkPlus className="w-4 h-4 mr-2 text-gray-600" />
         Save
       </Button>
     </div>

@@ -3,11 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { MapPin, List } from 'lucide-react'
+import { MapPin, List, Share2, Bookmark } from 'lucide-react'
 import { fetchTrip } from '../services/trip'
 import type { Trip } from '../types/trip'
 import { TripMap } from '../components/trips/TripMap'
-import { TripActions } from '../components/trips/TripActions'
 import { format } from 'date-fns'
 
 export const Trips = () => {
@@ -79,45 +78,56 @@ export const Trips = () => {
             {format(trip.startDate, 'd MMM yyyy')} - {format(trip.endDate, 'd MMM yyyy')}
           </p>
         </div>
-        <TripActions city={trip.city} />
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="sm" className="font-inter">
+            <Share2 className="w-4 h-4 mr-2" />
+            Share
+          </Button>
+          <Button variant="outline" size="sm" className="font-inter">
+            <Bookmark className="w-4 h-4 mr-2" />
+            Save
+          </Button>
+        </div>
       </div>
 
       <div className="flex justify-end mb-8">
-        <Button
-          variant={viewMode === 'list' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setViewMode('list')}
-          className={`rounded-r-none border-r-0 font-inter ${
-            viewMode === 'list'
-              ? 'bg-gray-900 text-white hover:bg-gray-800'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          <List className="w-4 h-4 mr-2" />
-          List
-        </Button>
-        <Button
-          variant={viewMode === 'map' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setViewMode('map')}
-          className={`rounded-l-none font-inter ${
-            viewMode === 'map'
-              ? 'bg-gray-900 text-white hover:bg-gray-800'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          <MapPin className="w-4 h-4 mr-2" />
-          Map
-        </Button>
+        <div className="inline-flex rounded-lg bg-gray-100 p-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setViewMode('list')}
+            className={`rounded-md px-4 py-2 font-inter ${
+              viewMode === 'list'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <List className="w-4 h-4 mr-2" />
+            List
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setViewMode('map')}
+            className={`rounded-md px-4 py-2 font-inter ${
+              viewMode === 'map'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <MapPin className="w-4 h-4 mr-2" />
+            Map
+          </Button>
+        </div>
       </div>
 
       <Tabs value={activeDay.toString()} onValueChange={(value) => setActiveDay(parseInt(value))} className="mb-8">
-        <TabsList className="mb-8 space-x-6 border-b border-gray-200 w-full px-0">
+        <TabsList className="bg-gray-100 p-1 rounded-lg w-fit">
           {trip.days.map((day) => (
             <TabsTrigger
               key={day.number}
               value={day.number.toString()}
-              className="px-8 py-3 font-medium text-gray-600 hover:text-gray-900 font-inter data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-gray-900 data-[state=active]:font-semibold"
+              className="px-6 py-2 font-inter data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900"
             >
               Day {day.number}
             </TabsTrigger>
@@ -131,11 +141,11 @@ export const Trips = () => {
                 {day.locations.map((location, index) => (
                   <div key={location.id}>
                     <Card className="overflow-hidden hover:shadow-md transition-shadow">
-                      <div className="aspect-[16/9] relative">
+                      <div className="relative">
                         <img
                           src={location.image}
                           alt={location.name}
-                          className="object-cover w-full h-full"
+                          className="w-full h-64 object-cover"
                         />
                         <div className="absolute top-4 left-4 z-10 bg-primary text-white text-sm font-medium rounded-full w-8 h-8 flex items-center justify-center shadow-md font-inter">
                           {index + 1}
