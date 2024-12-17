@@ -1,9 +1,14 @@
 import { GoogleMap, Marker, DirectionsRenderer, useJsApiLoader } from '@react-google-maps/api'
 import { useState, useCallback, useEffect } from 'react'
-import type { Location } from '../../types/trip'
+
+interface MapLocation {
+  name: string
+  coordinates: [number, number]
+  index: number
+}
 
 interface TripMapProps {
-  locations: Location[]
+  locations: MapLocation[]
 }
 
 const mapContainerStyle = {
@@ -64,11 +69,11 @@ export const TripMap = ({ locations }: TripMapProps) => {
         center={{ lat: locations[0]?.coordinates[0] || -6.2104477, lng: locations[0]?.coordinates[1] || 106.8224768 }}
         zoom={13}
       >
-        {locations.map((location, index) => (
+        {locations.map((location) => (
           <Marker
-            key={index}
+            key={location.index}
             position={{ lat: location.coordinates[0], lng: location.coordinates[1] }}
-            label={createMarkerLabel(index)}
+            label={createMarkerLabel(location.index)}
           />
         ))}
         {directions && <DirectionsRenderer directions={directions} />}
