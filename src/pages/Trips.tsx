@@ -8,6 +8,7 @@ import { fetchTrip } from '../services/trip'
 import type { Trip } from '../types/trip'
 import { TripMap } from '../components/trips/TripMap'
 import { TripActions } from '../components/trips/TripActions'
+import { format } from 'date-fns'
 
 export const Trips = () => {
   const { tripId } = useParams<{ tripId: string }>()
@@ -73,20 +74,24 @@ export const Trips = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold font-inter">{trip.city}</h1>
-          <p className="text-gray-600 font-inter">
-            {trip.startDate.toLocaleDateString()} - {trip.endDate.toLocaleDateString()}
+          <h1 className="text-3xl font-bold font-inter text-gray-900">{trip.city}</h1>
+          <p className="text-gray-600 font-inter mt-1">
+            {format(trip.startDate, 'd MMM yyyy')} - {format(trip.endDate, 'd MMM yyyy')}
           </p>
         </div>
         <TripActions city={trip.city} />
       </div>
 
-      <div className="flex justify-end mb-6">
+      <div className="flex justify-end mb-8">
         <Button
           variant={viewMode === 'list' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setViewMode('list')}
-          className="rounded-r-none border-r-0 font-inter"
+          className={`rounded-r-none border-r-0 font-inter ${
+            viewMode === 'list'
+              ? 'bg-gray-900 text-white hover:bg-gray-800'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
         >
           <List className="w-4 h-4 mr-2" />
           List
@@ -95,7 +100,11 @@ export const Trips = () => {
           variant={viewMode === 'map' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setViewMode('map')}
-          className="rounded-l-none font-inter"
+          className={`rounded-l-none font-inter ${
+            viewMode === 'map'
+              ? 'bg-gray-900 text-white hover:bg-gray-800'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
         >
           <MapPin className="w-4 h-4 mr-2" />
           Map
@@ -103,12 +112,12 @@ export const Trips = () => {
       </div>
 
       <Tabs value={activeDay.toString()} onValueChange={(value) => setActiveDay(parseInt(value))} className="mb-8">
-        <TabsList className="mb-6 space-x-4 border-b border-gray-200 w-full px-0">
+        <TabsList className="mb-8 space-x-6 border-b border-gray-200 w-full px-0">
           {trip.days.map((day) => (
             <TabsTrigger
               key={day.number}
               value={day.number.toString()}
-              className="px-8 py-3 font-medium text-gray-600 hover:text-gray-900 font-inter data-[state=active]:border-b-2 data-[state=active]:border-primary"
+              className="px-8 py-3 font-medium text-gray-600 hover:text-gray-900 font-inter data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-gray-900 data-[state=active]:font-semibold"
             >
               Day {day.number}
             </TabsTrigger>
@@ -118,44 +127,66 @@ export const Trips = () => {
         {trip.days.map((day) => (
           <TabsContent key={day.number} value={day.number.toString()}>
             <div className="grid grid-cols-2 gap-8">
-              <div className="space-y-8">
+              <div className="space-y-12">
                 {day.locations.map((location, index) => (
-                  <Card key={location.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                    <div className="aspect-[16/9] relative">
-                      <img
-                        src={location.image}
-                        alt={location.name}
-                        className="object-cover w-full h-full"
-                      />
-                      <div className="absolute top-4 left-4 z-10 bg-primary text-white text-sm font-medium rounded-full w-8 h-8 flex items-center justify-center shadow-md font-inter">
-                        {index + 1}
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <div className="flex justify-between items-start mb-3">
-                        <h3 className="text-lg font-semibold font-inter">{location.name}</h3>
-                        <div className="flex items-center gap-1">
-                          <span className="text-yellow-400">★</span>
-                          <span className="font-medium">{location.rating}</span>
+                  <div key={location.id}>
+                    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                      <div className="aspect-[16/9] relative">
+                        <img
+                          src={location.image}
+                          alt={location.name}
+                          className="object-cover w-full h-full"
+                        />
+                        <div className="absolute top-4 left-4 z-10 bg-primary text-white text-sm font-medium rounded-full w-8 h-8 flex items-center justify-center shadow-md font-inter">
+                          {index + 1}
                         </div>
                       </div>
-                      <p className="text-gray-600 text-sm mb-4 font-inter">{location.description}</p>
-                      <div className="space-y-2 text-sm text-gray-500 font-inter">
-                        <p className="flex items-center gap-2">
-                          <span className="w-4 h-4">🕒</span>
-                          {location.hours}
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4" />
-                          {location.address}
-                        </p>
+                      <div className="p-6">
+                        <div className="flex justify-between items-start mb-3">
+                          <h3 className="text-lg font-semibold font-inter text-gray-900">{location.name}</h3>
+                          <div className="flex items-center gap-1">
+                            <span className="text-amber-400">★</span>
+                            <span className="font-medium text-gray-700">{location.rating}</span>
+                          </div>
+                        </div>
+                        <p className="text-gray-600 text-sm mb-4 font-inter leading-relaxed">{location.description}</p>
+                        <div className="space-y-2 text-sm text-gray-500 font-inter">
+                          <p className="flex items-center gap-2">
+                            <span>🕒</span>
+                            {location.hours}
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4" />
+                            {location.address}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </Card>
+                    </Card>
+                    {index < day.locations.length - 1 && (
+                      <div className="flex items-center gap-2 text-gray-500 text-sm font-inter py-4 pl-4">
+                        {index === 0 ? (
+                          <>
+                            <span className="text-lg">🚶</span>
+                            <span>5 mins walk to next location</span>
+                          </>
+                        ) : index === 1 ? (
+                          <>
+                            <span className="text-lg">🚶</span>
+                            <span>10 mins walk to next location</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-lg">🚗</span>
+                            <span>5 mins drive to next location</span>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
               {viewMode === 'map' && (
-                <div className="sticky top-24 h-[calc(100vh-12rem)]">
+                <div className="sticky top-24 h-[calc(100vh-12rem)] rounded-lg overflow-hidden shadow-md">
                   <TripMap
                     locations={day.locations.map((loc, idx) => ({
                       name: loc.name,
