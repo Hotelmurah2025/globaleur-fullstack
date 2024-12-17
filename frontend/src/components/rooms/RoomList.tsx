@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { RoomForm } from "./RoomForm";
 
 interface Room {
   id: number;
@@ -24,27 +23,27 @@ export const RoomList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/rooms`);
-        const data: ApiResponse = await response.json();
+  const fetchRooms = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/rooms`);
+      const data: ApiResponse = await response.json();
 
-        if (data.status === 'success') {
-          setRooms(data.data?.rooms || []);
-        } else {
-          setError(data.message || 'Failed to fetch rooms');
-        }
-      } catch (error) {
-        setError('Error connecting to the server');
-        console.error('Error fetching rooms:', error);
-      } finally {
-        setLoading(false);
+      if (data.status === 'success') {
+        setRooms(data.data?.rooms || []);
+      } else {
+        setError(data.message || 'Failed to fetch rooms');
       }
-    };
+    } catch (error) {
+      setError('Error connecting to the server');
+      console.error('Error fetching rooms:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchRooms();
   }, []);
 
@@ -60,10 +59,7 @@ export const RoomList = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Rooms</h2>
-        <Button>
-          <Plus className="mr-2" size={16} />
-          Add Room
-        </Button>
+        <RoomForm onSuccess={fetchRooms} />
       </div>
 
       {rooms.length === 0 ? (
