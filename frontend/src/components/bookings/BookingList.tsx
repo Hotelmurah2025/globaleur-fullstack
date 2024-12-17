@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from 'date-fns';
-import { BookingForm } from "./BookingForm";
+import BookingForm from "./BookingForm";
+import { Button } from "@/components/ui/button";
 
 interface Booking {
   id: number;
@@ -24,12 +25,13 @@ export const BookingList = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const fetchBookings = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings`);
+      const response = await fetch('http://localhost:8000/api/bookings');
       const data: ApiResponse = await response.json();
 
       if (data.status === 'success') {
@@ -49,6 +51,11 @@ export const BookingList = () => {
     fetchBookings();
   }, []);
 
+  const handleSuccess = () => {
+    fetchBookings();
+    setIsDialogOpen(false);
+  };
+
   if (loading) {
     return <div className="flex justify-center items-center h-full">Loading bookings...</div>;
   }
@@ -61,8 +68,15 @@ export const BookingList = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Bookings</h2>
-        <BookingForm onSuccess={fetchBookings} />
+        <Button onClick={() => setIsDialogOpen(true)}>New Booking</Button>
       </div>
+
+      {isDialogOpen && (
+        <BookingForm
+          onSuccess={handleSuccess}
+          onClose={() => setIsDialogOpen(false)}
+        />
+      )}
 
       {bookings.length === 0 ? (
         <div className="text-center text-gray-500">No bookings available</div>
