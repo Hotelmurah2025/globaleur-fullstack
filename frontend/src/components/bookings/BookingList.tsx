@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { format } from 'date-fns';
+import { BookingForm } from "./BookingForm";
 
 interface Booking {
   id: number;
@@ -26,27 +25,27 @@ export const BookingList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings`);
-        const data: ApiResponse = await response.json();
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings`);
+      const data: ApiResponse = await response.json();
 
-        if (data.status === 'success') {
-          setBookings(data.data?.bookings || []);
-        } else {
-          setError(data.message || 'Failed to fetch bookings');
-        }
-      } catch (error) {
-        setError('Error connecting to the server');
-        console.error('Error fetching bookings:', error);
-      } finally {
-        setLoading(false);
+      if (data.status === 'success') {
+        setBookings(data.data?.bookings || []);
+      } else {
+        setError(data.message || 'Failed to fetch bookings');
       }
-    };
+    } catch (error) {
+      setError('Error connecting to the server');
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchBookings();
   }, []);
 
@@ -62,10 +61,7 @@ export const BookingList = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Bookings</h2>
-        <Button>
-          <Plus className="mr-2" size={16} />
-          New Booking
-        </Button>
+        <BookingForm onSuccess={fetchBookings} />
       </div>
 
       {bookings.length === 0 ? (
