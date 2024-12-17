@@ -23,5 +23,6 @@ type BookingRequest struct {
 	RoomID       uint      `json:"room_id"`
 	CheckInDate  time.Time `json:"check_in_date"`
 	CheckOutDate time.Time `json:"check_out_date"`
+	Status       string    `json:"status"` // confirmed, checked_in, checked_out, cancelled
 	Notes        string    `json:"notes"`
 }

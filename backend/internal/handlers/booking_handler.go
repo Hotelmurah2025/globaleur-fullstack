@@ -119,14 +119,40 @@ func (h *BookingHandler) CreateBooking(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create new booking with sample data
+	// Validate room exists
+	roomExists := false
+	for _, room := range h.rooms {
+		if room.ID == req.RoomID {
+			roomExists = true
+			break
+		}
+	}
+	if !roomExists {
+		http.Error(w, "Room not found", http.StatusNotFound)
+		return
+	}
+
+	// Validate guest exists
+	guestExists := false
+	for _, guest := range h.guests {
+		if guest.ID == req.GuestID {
+			guestExists = true
+			break
+		}
+	}
+	if !guestExists {
+		http.Error(w, "Guest not found", http.StatusNotFound)
+		return
+	}
+
+	// Create new booking
 	newBooking := models.Booking{
 		ID:            uint(len(h.bookings) + 1),
 		GuestID:       req.GuestID,
 		RoomID:        req.RoomID,
 		CheckInDate:   req.CheckInDate,
 		CheckOutDate:  req.CheckOutDate,
-		Status:        "confirmed",
+		Status:        req.Status,
 		TotalAmount:   150.00, // Sample amount
 		PaymentStatus: "pending",
 		Notes:         req.Notes,
