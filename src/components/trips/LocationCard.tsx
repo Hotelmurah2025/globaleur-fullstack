@@ -8,7 +8,10 @@ interface LocationCardProps {
   rating: number
   hours?: string
   image: string
-  category: string
+  travelTime?: {
+    duration: string
+    mode: 'walking' | 'driving'
+  }
 }
 
 export const LocationCard = ({
@@ -16,48 +19,51 @@ export const LocationCard = ({
   description,
   address,
   rating,
-  hours,
+  hours = 'All day',
   image,
-  category,
+  travelTime
 }: LocationCardProps) => {
   return (
-    <Card className="overflow-hidden">
-      <div className="aspect-video relative">
-        <img
-          src={image}
-          alt={name}
-          className="object-cover w-full h-full"
-        />
-        <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded-full">
-          <div className="flex items-center gap-1">
-            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-            <span className="text-sm font-medium">{rating}</span>
-          </div>
+    <div className="space-y-4">
+      {travelTime && (
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <img
+            src={travelTime.mode === 'walking' ? '/assets/pedestrian.svg' : '/assets/car.svg'}
+            alt={travelTime.mode}
+            className="w-4 h-4"
+          />
+          <span>{travelTime.duration}</span>
         </div>
-      </div>
-      <CardHeader>
-        <div className="space-y-1">
-          <CardTitle className="text-xl">{name}</CardTitle>
-          <p className="text-sm text-muted-foreground">{category}</p>
+      )}
+      <Card className="overflow-hidden">
+        <div className="relative aspect-video">
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full object-cover"
+          />
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <CardDescription className="line-clamp-2">
-          {description}
-        </CardDescription>
-        <div className="space-y-2 text-sm text-muted-foreground">
-          <div className="flex items-start gap-2">
-            <MapPin className="h-4 w-4 mt-1 shrink-0" />
-            <span>{address}</span>
-          </div>
-          {hours && (
-            <div className="flex items-start gap-2">
-              <Clock className="h-4 w-4 mt-1 shrink-0" />
-              <span>{hours}</span>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg">{name}</CardTitle>
+            <div className="flex items-center gap-1">
+              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+              <span>{rating}</span>
             </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          </div>
+          <CardDescription>{description}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div className="flex items-center gap-2 text-sm">
+            <Clock className="w-4 h-4 text-gray-500" />
+            <span>{hours}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <MapPin className="w-4 h-4 text-gray-500" />
+            <span className="truncate">{address}</span>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
