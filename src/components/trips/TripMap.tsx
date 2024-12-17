@@ -17,8 +17,8 @@ const mapContainerStyle = {
 }
 
 const createMarkerLabel = (index: number) => ({
-  text: `${index + 1}`,
-  className: 'bg-primary rounded-full w-6 h-6 flex items-center justify-center text-white'
+  text: `${index}`,
+  className: 'bg-primary text-white text-sm font-medium rounded-full w-8 h-8 flex items-center justify-center shadow-md font-inter'
 })
 
 export const TripMap = ({ locations }: TripMapProps) => {
